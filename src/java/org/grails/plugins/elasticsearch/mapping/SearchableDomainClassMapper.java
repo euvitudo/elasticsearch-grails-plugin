@@ -28,7 +28,7 @@ class SearchableDomainClassMapper extends GroovyObjectSupport {
     /**
      * Options applied to searchable class itself
      */
-    public static final Set<String> CLASS_MAPPING_OPTIONS = new HashSet<String>(Arrays.asList("all", "root", "only", "except"));
+    public static final Set<String> CLASS_MAPPING_OPTIONS = new HashSet<String>(Arrays.asList("all", "root", "only", "except", "includeTransients"));
     /**
      * Searchable property name
      */
@@ -46,6 +46,7 @@ class SearchableDomainClassMapper extends GroovyObjectSupport {
     private GrailsApplication grailsApplication;
     private Object only;
     private Object except;
+    private Object includeTransients;
 
     private ConfigObject esConfig;
 
@@ -76,6 +77,10 @@ class SearchableDomainClassMapper extends GroovyObjectSupport {
 
     public void setExcept(Object except) {
         this.except = except;
+    }
+    
+    public void setIncludeTransients(Object includeTransients) {
+        this.includeTransients = includeTransients;
     }
 
     public void root(Boolean rootFlag) {
@@ -206,6 +211,7 @@ class SearchableDomainClassMapper extends GroovyObjectSupport {
         closure.setDelegate(this);
         closure.call();
 
+        buildMappingFromTransients(grailsDomainClass);
         buildMappingFromOnlyExcept(grailsDomainClass, inheritedProperties);
     }
 
@@ -213,6 +219,8 @@ class SearchableDomainClassMapper extends GroovyObjectSupport {
         // Support old searchable-plugin syntax ([only: ['category', 'title']] or [except: 'createdAt'])
         only = map.containsKey("only") ? map.get("only") : null;
         except = map.containsKey("except") ? map.get("except") : null;
+        includeTransients = map.containsKey("includeTransients") ? map.get("includeTransients") : null;
+        buildMappingFromTransients(grailsDomainClass);
         buildMappingFromOnlyExcept(domainClass, inheritedProperties);
     }
 
@@ -240,6 +248,34 @@ class SearchableDomainClassMapper extends GroovyObjectSupport {
             }
             mappableProperties.addAll(propsOnly);
         }
+    }
+    
+    private void buildMappingFromTransients(GrailsDomainClass domainClass) {
+        Set<String> propsTransients = null;
+        if (includeTransients instanceof Boolean) {
+            // find the transients from the domain class
+            propsTransients = getNonPersistentProperties(domainClass);
+        } else if (includeTransients instanceof Object[]) {
+            Set<String> domainTransients = getNonPersistentProperties(domainClass);
+            propsTransients = convertToSet(includeTransients);
+            // TODO: warn about or throw exception when configuration mismatches exist
+            propsTransients.retainAll(domainTransients);
+        }
+        // TODO: handle collisions between transients, only and/or except.
+        if (propsTransients != null && !propsTransients.isEmpty()) {
+            mappableProperties.addAll(propsTransients);
+        }
+    }
+
+    private Set<String> getNonPersistentProperties(GrailsDomainClass domainClass) {
+        GrailsDomainClassProperty[] props = domainClass.getProperties();
+        Set<String> nonPersistentProps = new HashSet<String>();
+        for (GrailsDomainClassProperty prop : props) {
+            if (!prop.isPersistent()) {
+                nonPersistentProps.add(prop.getName());
+            }
+        }
+        return nonPersistentProps;
     }
 
     /**
