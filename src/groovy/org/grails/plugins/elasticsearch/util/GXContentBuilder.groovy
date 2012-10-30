@@ -151,7 +151,7 @@ class GXContentBuilder extends GroovyObjectSupport {
             if (current[methodName]) {
                 // already has node.
                 // do not override existing nodes, instead convert to Lists.
-                if (!(current[methodName] instanceof List)) {
+                if (!(current[methodName] instanceof List) && methodName != "bool") {
                     current[methodName] = [current[methodName]]
                 }
                 current[methodName] << n
