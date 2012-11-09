@@ -12,4 +12,5 @@ converter | A @Class@ to use as a converter during the marshalling/unmarshalling
 excludeFromAll | A boolean, determines if the property is to append in the @"_all"@ field. Default to @true@.
 index | How or if the property is made into searchable element. One of @"no"@, @"not_analyzed"@ or @"analyzed"@.
 reference | To use only on domain (or collection of domains), make the property a searchable reference.
+includeTransients | A boolean indicating whether @transients@ should be included in the mapping.  Alternatively, a list of transient field names to be included in the mapping.
 {table}
