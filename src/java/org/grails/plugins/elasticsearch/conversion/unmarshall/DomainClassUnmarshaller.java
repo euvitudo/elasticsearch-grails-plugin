@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.codehaus.groovy.grails.commons.*;
 import org.codehaus.groovy.grails.web.metaclass.BindDynamicMethod;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
+import org.codehaus.groovy.runtime.StringGroovyMethods;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.Client;
@@ -53,7 +54,7 @@ public class DomainClassUnmarshaller {
         DefaultUnmarshallingContext unmarshallingContext = new DefaultUnmarshallingContext();
         List results = new ArrayList();
         for(SearchHit hit : hits) {
-            String domainClassName = hit.index().equals(hit.type()) ? DefaultGroovyMethods.capitalize(hit.index()) : (hit.index() + '.' + DefaultGroovyMethods.capitalize(hit.type()));
+            String domainClassName = hit.index().equals(hit.type()) ? StringGroovyMethods.capitalize(hit.index()) : (hit.index() + '.' + StringGroovyMethods.capitalize(hit.type()));
             SearchableClassMapping scm = elasticSearchContextHolder.getMappingContext(domainClassName);
             if (scm == null) {
                 LOG.warn("Unknown SearchHit: " + hit.id() + "#" + hit.type() + ", domain class name: " + domainClassName);
@@ -119,7 +120,7 @@ public class DomainClassUnmarshaller {
                 try {
                     if (currentProperty instanceof Collection) {
                         //noinspection unchecked
-                        currentProperty = DefaultGroovyMethods.getAt(((Collection<Object>) currentProperty).iterator(), DefaultGroovyMethods.toInteger(part));
+                        currentProperty = DefaultGroovyMethods.getAt(((Collection<Object>) currentProperty).iterator(), DefaultGroovyMethods.toInteger(part).intValue());
                     } else {
                         currentProperty = DefaultGroovyMethods.getAt(currentProperty, part);
                     }

@@ -29,9 +29,10 @@ class User extends SuperUser {
           tweets:'user'
   ]
 
-  static mapping = {
-          table 'test_user'
-  }
+    static mapping = {
+        table 'test_user'
+        role enumType: 'ordinal'
+    }
 
   static transients = ['name']
 
@@ -52,7 +53,4 @@ class User extends SuperUser {
       return firstname + ' ' + lastname
   }
 
-  enum Role {
-      ORDINARY, ADMIN
-  }
 }
