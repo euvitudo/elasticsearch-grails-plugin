@@ -19,7 +19,6 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.plugins.support.aware.GrailsApplicationAware
 import org.elasticsearch.client.Client
 import org.elasticsearch.action.search.SearchType
-import org.elasticsearch.groovy.common.xcontent.GXContentBuilder
 
 import static org.elasticsearch.client.Requests.searchRequest
 import static org.elasticsearch.search.builder.SearchSourceBuilder.searchSource
@@ -29,6 +28,7 @@ import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.search.builder.SearchSourceBuilder
 import org.elasticsearch.search.highlight.HighlightBuilder
 import org.elasticsearch.search.SearchHit
+import org.grails.plugins.elasticsearch.util.GXContentBuilder
 import org.elasticsearch.search.sort.SortOrder
 import org.elasticsearch.action.count.CountRequest
 import org.elasticsearch.action.ActionRequest
