@@ -19,6 +19,10 @@ log4j = {
             'org.hibernate',
             'net.sf.ehcache.hibernate'
 
+    debug   'org.grails.plugins.elasticsearch',
+            'org.elasticsearch',
+            'grails.app'
+
     warn 'org.mortbay.log'
     //debug 'org.grails.plugins.elasticsearch'
 }
@@ -34,13 +38,11 @@ elasticSearch {
      * If the client mode is set to "transport" and no hosts are defined, ["localhost", 9300] will be used by default.
      */
     client.hosts = [
-            [host: 'localhost', port: 9300]
+        [host: 'localhost', port: 9300]
     ]
 
     disableAutoIndex = false
-    index {
-        compound_format = true
-    }
+    index { compound_format = true }
 }
 
 environments {

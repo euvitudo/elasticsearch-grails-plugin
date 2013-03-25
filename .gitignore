@@ -6,3 +6,5 @@ target
 prodDb.properties
 prodDb.script
 .link_to_grails_plugins
+grails-app/i18n
+web-app
