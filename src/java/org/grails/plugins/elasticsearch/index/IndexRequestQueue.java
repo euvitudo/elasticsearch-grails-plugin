@@ -39,6 +39,7 @@ import org.springframework.util.Assert;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -69,7 +70,7 @@ public class IndexRequestQueue {
      */
     Set<IndexEntityKey> deleteRequests = new HashSet<IndexEntityKey>();
 
-    List<OperationBatch> operationBatchList = new LinkedList<OperationBatch>();
+    Queue<OperationBatch> operationBatchList = new ConcurrentLinkedQueue<OperationBatch>();
 
     /**
      * No-args constructor.
@@ -227,23 +228,20 @@ public class IndexRequestQueue {
 
     public void waitComplete() {
         LOG.debug("IndexRequestQueue.waitComplete() called");
-        List<OperationBatch> clone = new LinkedList<OperationBatch>();
-        synchronized (this) {
-            clone.addAll(operationBatchList);
-            operationBatchList.clear();
-        }
+        Queue<OperationBatch> clone;
+        clone = new ConcurrentLinkedQueue<OperationBatch>(operationBatchList);
+        operationBatchList.clear();
         for (OperationBatch op : clone) {
             op.waitComplete();
         }
     }
 
     private void cleanOperationBatchList() {
-        synchronized (this) {
-            for (Iterator<OperationBatch> it = operationBatchList.iterator(); it.hasNext(); ) {
-                OperationBatch current = it.next();
-                if (current.isComplete()) {
-                    it.remove();
-                }
+        Iterator<OperationBatch> it = operationBatchList.iterator();
+        while (it != null && it.hasNext()) {
+            OperationBatch current = it.next();
+            if (current.isComplete()) {
+                it.remove();
             }
         }
         LOG.debug("OperationBatchList cleaned");
